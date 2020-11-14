@@ -1,4 +1,4 @@
-import sys
+import sys, os
 
 from pathlib import Path
 
@@ -116,7 +116,12 @@ class AudioSplitter(QWidget):
 
 
     def getCsvFileName(self):
-        success = QFileDialog.getOpenFileName(None, 'Open Audio Track', '', 'Audio Files (*.mp3 *.wav *.flac *.ogg)')[0]
+        if "PYCHARM_HOSTED" in os.environ:
+            success = \
+            QFileDialog.getOpenFileName(None, 'Open Audio Track', '', 'Audio Files (*.mp3 *.wav *.flac *.ogg)', options=QFileDialog.DontUseNativeDialog)[0]
+        else:
+            success = QFileDialog.getOpenFileName(None, 'Open Audio Track', '', 'Audio Files (*.mp3 *.wav *.flac *.ogg)')[0]
+
         if success:
             return success
 
@@ -130,7 +135,7 @@ class AudioSplitter(QWidget):
     def onStartClick(self):
         runInstance = RunSpleeter()
         self.updateStatus('Initializing')
-        runInstance.startRun(self.inputFile, self.stemOptions.curStems, self.stemOptions.curOptions, self.updateStatus)
+        runInstance.startRun(self.inputFile, self.stemOptions.curStems, self.stemOptions.curOptions, self.updateStatus, self.saveOutput)
 
     def updateStatus(self, status, isError=False):
         newLine = QLabel(('ERROR' if isError else 'STATUS') + f': {status}')
@@ -140,6 +145,16 @@ class AudioSplitter(QWidget):
         QCoreApplication.processEvents()
         QCoreApplication.processEvents()
         self.statusTextScroll.verticalScrollBar().setValue(self.statusTextScroll.verticalScrollBar().maximum() + 1)
+
+    def saveOutput(self):
+        dlg = QFileDialog()
+        if "PYCHARM_HOSTED" in os.environ:
+            saveLoc = dlg.getSaveFileName(None, 'Save File', '', 'Zip files (*.zip)', options=QFileDialog.DontUseNativeDialog)
+        else:
+            saveLoc = dlg.getSaveFileName(None, 'Save File', '', 'Zip files (*.zip)')
+        if saveLoc and saveLoc[0]:
+            return saveLoc[0]
+
 
     def onClose(self):
         sys.exit()
