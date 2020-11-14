@@ -1,0 +1,3 @@
+config = {
+    'STOREDIR': './tmpo'
+}
